@@ -2,7 +2,6 @@ using JuMP,Cbc
 #using GraphRecipes,Plots
 
 tsp = Model(with_optimizer(Cbc.Optimizer, logLevel=1, threads= 4))
-n = 10 # numero de cidades , >= 2
 # cidade 1 = cidade de partida
 cityPos = Dict{Int,Any}()
 cityPos[1] = (523,418)
@@ -10,14 +9,14 @@ cityPos[2] = (527,566)
 cityPos[3] = (435,603)
 cityPos[4] = (386,660)
 cityPos[5] = (346,692)
-cityPos[6] = (431,730)
-cityPos[7] = (419,818)
-cityPos[8] = (347,520)
-cityPos[9] = (332,330)
-cityPos[10] = (165,374)
-cityPos[11] = (196,198)
-cityPos[12] = (187,108)
-cityPos[13] = (210,63)
+#cityPos[6] = (431,730)
+#cityPos[7] = (419,818)
+#cityPos[8] = (347,520)
+#cityPos[9] = (332,330)
+#cityPos[10] = (165,374)
+#cityPos[11] = (196,198)
+#cityPos[12] = (187,108)
+#cityPos[13] = (210,63)
 
 nCities = length(cityPos)
 
@@ -72,8 +71,13 @@ for i in 1:nCities
     end
 end
 
-status = optimize!(tsp)
-if status == :Optimal
-    println("Solucao otima encontrada")
+optimize!(tsp)
+if termination_status(tsp) == MOI.OPTIMAL
+    println("Solucao otima encontrada \n\nVetor u : \n")
+    for i in 1:nCities
+        println(value(u[i]))
+    end
+    println("\nDistancia total: ")
+    println(objective_value(tsp))
 else println("Solucao otima nao encontrada")
 end
