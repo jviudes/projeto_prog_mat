@@ -1,7 +1,7 @@
 using JuMP,Cbc
 #using GraphRecipes,Plots
 
-tsp = Model(with_optimizer(Cbc.Optimizer, logLevel=1, threads= 4))
+tsp = Model(with_optimizer(Cbc.Optimizer, logLevel=1, threads=8))
 # cidade 1 = cidade de partida
 cityPos = Dict{Int,Any}()
 cityPos[1] = (523,418)
@@ -9,7 +9,7 @@ cityPos[2] = (527,566)
 cityPos[3] = (435,603)
 cityPos[4] = (386,660)
 cityPos[5] = (346,692)
-#cityPos[6] = (431,730)
+cityPos[6] = (431,730)
 #cityPos[7] = (419,818)
 #cityPos[8] = (347,520)
 #cityPos[9] = (332,330)
@@ -49,7 +49,7 @@ for i in 1:nCities
 end
 # Garantir saida de todos os vertices
 
-for j in 1:nCities
+for j in 2:nCities
     @constraint(tsp, sum(visit[i,j] for i in 1:nCities if i!=j ) == 1)
 end
 # Garantir entrada em todos os vertices
@@ -66,7 +66,7 @@ end
 for i in 1:nCities
     for j in 2:nCities
         if i!=j
-            @constraint(tsp, u[i]+visit[i,j]-n*(1-visit[i,j]) <= u[j])
+            @constraint(tsp, u[i]+visit[i,j]-nCities*(1-visit[i,j]) <= u[j])
         end
     end
 end
