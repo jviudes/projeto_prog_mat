@@ -1,15 +1,14 @@
 using JuMP,Cbc
-#using GraphRecipes,Plots
+# using GraphRecipes,Plots
 
 tsp = Model(with_optimizer(Cbc.Optimizer, logLevel=1, threads=8))
-# cidade 1 = cidade de partida
 cityPos = Dict{Int,Any}()
 cityPos[1] = (523,418)
 cityPos[2] = (527,566)
 cityPos[3] = (435,603)
 cityPos[4] = (386,660)
 cityPos[5] = (346,692)
-cityPos[6] = (431,730)
+# cityPos[6] = (431,730)
 #cityPos[7] = (419,818)
 #cityPos[8] = (347,520)
 #cityPos[9] = (332,330)
@@ -20,13 +19,11 @@ cityPos[6] = (431,730)
 
 nCities = length(cityPos)
 
-#pyplot() # plotagem do grafico
-
-dist = zeros(nCities,nCities)
+# pyplot() # plotagem do grafico
+# VARIAVEIS
 posX, posY = [], [] #posicao dos vertices para o grafico
-
-#algoritmo que calcula as distancias entre os pontos e plota no grafico
-for i in sort(collect(keys(cityPos)))
+dist = zeros(nCities,nCities)
+for i in sort(collect(keys(cityPos))) #calcula distancia euclidiana
     posI = cityPos[i]
     for j in sort(collect(keys(cityPos)))
         posJ = cityPos[j]
@@ -35,34 +32,31 @@ for i in sort(collect(keys(cityPos)))
     #append!(posX,posI[1])
     #append!(posY,posI[2])
 end
+@variable(tsp, visit[i=1:nCities, j=1:nCities; i!=j], Bin) #matriz de arestas visitadas (cidades)
+@variable(tsp, u[1:nCities], Int) #declaracao do vetor u
 
 #definicao e plotagem do grafico
 #graphplot(1:nCities, 1:nCities, names=1:nCities,x=posX,y=posY,fontsize=10,m=:white,l=:black)
 
-@variable(tsp, visit[i=1:nCities, j=1:nCities; i!=j], Bin) #matriz de arestas visitadas (cidades)
+#FUNCAO OBJETIVO
 @objective(tsp, Min, sum(dist[i,j] * visit[i,j] for i in 1:nCities, j in 1:nCities if i!=j) )
-#objetivo = minimizacao da distancia total
 
-#Restricoes
-for i in 1:nCities
+#RESTRICOES
+for i in 1:nCities # Garantir saida de todos os vertices
     @constraint(tsp, sum(visit[i,j] for j in 1:nCities if i!=j ) == 1)
 end
-# Garantir saida de todos os vertices
 
-for j in 2:nCities
+for j in 2:nCities # Garantir entrada em todos os vertices
     @constraint(tsp, sum(visit[i,j] for i in 1:nCities if i!=j ) == 1)
 end
-# Garantir entrada em todos os vertices
 
-# u = zeros(Int64, nCities)
-@variable(tsp, u[1:nCities], Int) #declaracao do vetor u
-
-@constraint(tsp, u[1] == 0) # U[1] tem que ser igual a 0
+# restricao MTZ
+@constraint(tsp, u[1] == 0) 
 
 for i in 1:nCities
-    @constraint(tsp, u[i] >= 0) # Ui deve ser >= 0
+    @constraint(tsp, u[i] >= 0) 
 end
-# restricao MTZ
+
 for i in 1:nCities
     for j in 2:nCities
         if i!=j
