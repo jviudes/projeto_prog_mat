@@ -20,4 +20,8 @@ todas as outras.
 
   * ### Restrições
     > ![Restriçoes](imgs/sa1.svg)
+
+    > ![Restriçoes](imgs/sa2.svg)
+
+    > ![Restriçoes](imgs/sa3.svg)
   
